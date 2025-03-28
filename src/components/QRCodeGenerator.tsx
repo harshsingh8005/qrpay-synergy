@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Check, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -10,7 +10,6 @@ import { generateUpiPaymentUri, copyToClipboard } from '../utils/qrUtils';
 import { toast } from 'sonner';
 
 // Import QRCode from react-qr-code
-// We'll add this dependency
 import QRCode from 'react-qr-code';
 
 interface QRCodeGeneratorProps {
@@ -23,6 +22,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ showAmountInput = tru
   const [description, setDescription] = useState<string>('');
   const [upiUri, setUpiUri] = useState<string>('');
   const [copied, setCopied] = useState(false);
+  const qrRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -52,18 +52,8 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ showAmountInput = tru
   if (!user) return null;
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 shadow-lg border-none bg-white">
       <div className="flex flex-col items-center space-y-6">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold mb-1">Your Payment QR Code</h3>
-          <div className="flex items-center justify-center mb-2">
-            <span className="text-sm font-medium mr-2">{user.upiId}</span>
-            <Button variant="ghost" size="icon" onClick={handleCopyUpiId} className="h-6 w-6">
-              {copied ? <Check size={14} /> : <Copy size={14} />}
-            </Button>
-          </div>
-        </div>
-
         {showAmountInput && (
           <div className="w-full space-y-4 mb-4">
             <div>
@@ -74,7 +64,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ showAmountInput = tru
                 placeholder="Enter amount"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="mt-1"
+                className="mt-1 shadow-sm"
               />
             </div>
             
@@ -85,17 +75,19 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ showAmountInput = tru
                 placeholder="Payment for..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="mt-1"
+                className="mt-1 shadow-sm"
               />
             </div>
           </div>
         )}
 
-        <div className="bg-white p-4 rounded-lg shadow-sm">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100" ref={qrRef}>
           <QRCode
             value={upiUri}
             size={200}
             level="H"
+            fgColor="#1e40af"
+            bgColor="#ffffff"
           />
         </div>
         

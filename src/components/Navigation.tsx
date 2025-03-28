@@ -10,11 +10,11 @@ const Navigation: React.FC = () => {
   if (!user) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-100 p-2 z-10">
+    <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-100 p-2 z-10 max-w-md mx-auto">
       <div className="flex justify-around items-center">
         <NavLink 
           to="/" 
-          className={({ isActive }) => `flex flex-col items-center p-2 ${isActive ? 'text-upi-blue font-medium' : 'text-gray-500'}`}
+          className={({ isActive }) => `flex flex-col items-center p-2 ${isActive ? 'text-blue-600 font-medium' : 'text-gray-500'}`}
           end
         >
           <Home size={24} />
@@ -23,7 +23,7 @@ const Navigation: React.FC = () => {
         
         <NavLink 
           to="/payment" 
-          className={({ isActive }) => `flex flex-col items-center p-2 ${isActive ? 'text-upi-blue font-medium' : 'text-gray-500'}`}
+          className={({ isActive }) => `flex flex-col items-center p-2 ${isActive ? 'text-blue-600 font-medium' : 'text-gray-500'}`}
         >
           <CreditCard size={24} />
           <span className="text-xs mt-1">Pay</span>
@@ -31,7 +31,7 @@ const Navigation: React.FC = () => {
         
         <NavLink 
           to="/qr-code" 
-          className={({ isActive }) => `flex flex-col items-center p-2 ${isActive ? 'text-upi-blue font-medium' : 'text-gray-500'}`}
+          className={({ isActive }) => `flex flex-col items-center p-2 ${isActive ? 'text-blue-600 font-medium' : 'text-gray-500'}`}
         >
           <QrCode size={24} />
           <span className="text-xs mt-1">QR Code</span>
@@ -39,7 +39,7 @@ const Navigation: React.FC = () => {
         
         <NavLink 
           to="/transactions" 
-          className={({ isActive }) => `flex flex-col items-center p-2 ${isActive ? 'text-upi-blue font-medium' : 'text-gray-500'}`}
+          className={({ isActive }) => `flex flex-col items-center p-2 ${isActive ? 'text-blue-600 font-medium' : 'text-gray-500'}`}
         >
           <History size={24} />
           <span className="text-xs mt-1">History</span>
@@ -47,7 +47,7 @@ const Navigation: React.FC = () => {
         
         <NavLink 
           to="/profile" 
-          className={({ isActive }) => `flex flex-col items-center p-2 ${isActive ? 'text-upi-blue font-medium' : 'text-gray-500'}`}
+          className={({ isActive }) => `flex flex-col items-center p-2 ${isActive ? 'text-blue-600 font-medium' : 'text-gray-500'}`}
         >
           <User size={24} />
           <span className="text-xs mt-1">Profile</span>

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,8 +14,13 @@ const Profile = () => {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
   if (!user) {
-    navigate('/login');
     return null;
   }
 
@@ -35,7 +41,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="p-4 pb-20">
+    <div className="p-4 pb-20 bg-gray-50">
       <div className="flex items-center mb-6">
         <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
           <ArrowLeft size={20} />
@@ -43,9 +49,9 @@ const Profile = () => {
         <h1 className="text-xl font-semibold ml-2">Your Profile</h1>
       </div>
       
-      <Card className="p-6 mb-6">
+      <Card className="p-6 mb-6 shadow-sm border-none">
         <div className="flex items-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-upi-blue to-upi-blue-light flex items-center justify-center text-white text-xl font-bold mr-4">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white text-xl font-bold mr-4">
             {user.name.charAt(0)}
           </div>
           <div>
@@ -61,10 +67,10 @@ const Profile = () => {
         </div>
       </Card>
       
-      <div className="space-y-4">
-        <Card className="p-4 flex items-center" onClick={() => navigate('/profile/details')}>
+      <div className="space-y-3">
+        <Card className="p-4 flex items-center hover:bg-gray-50 transition-colors shadow-sm border-none" onClick={() => navigate('/profile/details')}>
           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-            <User size={20} className="text-upi-blue" />
+            <User size={20} className="text-blue-600" />
           </div>
           <div className="flex-1">
             <p className="font-medium">Personal Details</p>
@@ -75,7 +81,7 @@ const Profile = () => {
           </Button>
         </Card>
         
-        <Card className="p-4 flex items-center" onClick={() => navigate('/link-bank')}>
+        <Card className="p-4 flex items-center hover:bg-gray-50 transition-colors shadow-sm border-none" onClick={() => navigate('/link-bank')}>
           <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
             <CreditCard size={20} className="text-green-600" />
           </div>
@@ -88,7 +94,7 @@ const Profile = () => {
           </Button>
         </Card>
         
-        <Card className="p-4 flex items-center" onClick={() => navigate('/preferences')}>
+        <Card className="p-4 flex items-center hover:bg-gray-50 transition-colors shadow-sm border-none" onClick={() => navigate('/preferences')}>
           <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
             <Settings size={20} className="text-purple-600" />
           </div>
@@ -101,7 +107,7 @@ const Profile = () => {
           </Button>
         </Card>
         
-        <Card className="p-4 flex items-center" onClick={() => navigate('/security')}>
+        <Card className="p-4 flex items-center hover:bg-gray-50 transition-colors shadow-sm border-none" onClick={() => navigate('/security')}>
           <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
             <Lock size={20} className="text-red-600" />
           </div>
@@ -114,7 +120,7 @@ const Profile = () => {
           </Button>
         </Card>
         
-        <Card className="p-4 flex items-center" onClick={() => navigate('/help')}>
+        <Card className="p-4 flex items-center hover:bg-gray-50 transition-colors shadow-sm border-none" onClick={() => navigate('/help')}>
           <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
             <HelpCircle size={20} className="text-yellow-600" />
           </div>

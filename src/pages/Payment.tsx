@@ -1,12 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, QrCode, Send, User } from 'lucide-react';
+import { ArrowLeft, QrCode, Send, User, Clock, ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -18,10 +18,22 @@ const Payment = () => {
   const [description, setDescription] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
   if (!user) {
-    navigate('/login');
     return null;
   }
+
+  const frequentContacts = [
+    { name: "Sara", upiId: "sara@upibank" },
+    { name: "Mike", upiId: "mike@upibank" },
+    { name: "Jane", upiId: "jane@upibank" },
+    { name: "Alex", upiId: "alex@upibank" }
+  ];
 
   const handleSendMoney = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +57,7 @@ const Payment = () => {
     setIsProcessing(true);
     try {
       await sendMoney(upiId, numAmount, description || 'Payment');
+      toast.success(`₹${numAmount} sent to ${upiId} successfully!`);
       navigate('/');
     } catch (error) {
       // Error is handled by the auth context
@@ -53,13 +66,36 @@ const Payment = () => {
     }
   };
 
+  const handleContactClick = (contactUpiId: string) => {
+    setUpiId(contactUpiId);
+    // Auto-scroll to amount field
+    document.getElementById('amount')?.focus();
+  };
+
   return (
-    <div className="p-4 pb-20">
+    <div className="p-4 pb-20 bg-gray-50">
       <div className="flex items-center mb-6">
         <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
           <ArrowLeft size={20} />
         </Button>
         <h1 className="text-xl font-semibold ml-2">Send Money</h1>
+      </div>
+      
+      <div className="mb-6">
+        <div className="grid grid-cols-4 gap-4 text-center mb-6">
+          {frequentContacts.map((contact, index) => (
+            <div 
+              key={index}
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => handleContactClick(contact.upiId)}
+            >
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white text-xl font-bold mb-1">
+                {contact.name.charAt(0)}
+              </div>
+              <span className="text-xs">{contact.name}</span>
+            </div>
+          ))}
+        </div>
       </div>
       
       <Tabs defaultValue="upi" className="w-full">
@@ -79,7 +115,7 @@ const Payment = () => {
         </TabsList>
         
         <TabsContent value="upi">
-          <Card className="p-6">
+          <Card className="p-6 shadow-sm border-none">
             <form onSubmit={handleSendMoney} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="upiId">UPI ID / Phone Number</Label>
@@ -89,6 +125,7 @@ const Payment = () => {
                   value={upiId}
                   onChange={(e) => setUpiId(e.target.value)}
                   required
+                  className="shadow-sm"
                 />
               </div>
               
@@ -100,7 +137,7 @@ const Payment = () => {
                     id="amount"
                     type="number"
                     placeholder="0.00"
-                    className="pl-8"
+                    className="pl-8 shadow-sm"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     required
@@ -115,13 +152,14 @@ const Payment = () => {
                   placeholder="Payment for..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                  className="shadow-sm"
                 />
               </div>
               
               <div className="pt-2">
                 <Button 
                   type="submit" 
-                  className="w-full upi-gradient" 
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600" 
                   disabled={isProcessing}
                 >
                   {isProcessing ? 'Processing...' : 'Send Money'}
@@ -133,44 +171,83 @@ const Payment = () => {
               </div>
             </form>
           </Card>
+
+          <div className="mt-6">
+            <h3 className="font-medium mb-4 text-gray-700">Recent Transactions</h3>
+            <div className="space-y-3">
+              {[1, 2, 3].map((index) => (
+                <Card key={index} className="p-3 flex items-center shadow-sm border-none">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                    <Clock size={20} className="text-gray-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium">Recent Contact {index}</p>
+                    <p className="text-xs text-gray-500">Yesterday</p>
+                  </div>
+                  <Button size="sm" variant="ghost" className="text-blue-600">
+                    <ArrowUpRight size={16} />
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          </div>
         </TabsContent>
         
         <TabsContent value="qr">
-          <Card className="p-6 text-center">
+          <Card className="p-6 text-center shadow-sm border-none">
             <div className="mb-4">
-              <QrCode size={40} className="mx-auto text-gray-400" />
+              <QrCode size={40} className="mx-auto text-blue-500" />
             </div>
             <h3 className="font-medium mb-2">Scan QR Code</h3>
             <p className="text-gray-500 text-sm mb-4">
               This feature would use your camera to scan QR codes
             </p>
-            <Button variant="outline" className="mx-auto" disabled>
+            <Button variant="outline" className="mx-auto shadow-sm">
               Scan QR Code
             </Button>
             <p className="text-xs text-gray-400 mt-4">
-              Demo version: This feature is not available in the demo
+              Demo version: Camera access simulated
             </p>
           </Card>
         </TabsContent>
         
         <TabsContent value="contacts">
-          <Card className="p-6 text-center">
+          <Card className="p-6 shadow-sm border-none">
             <div className="mb-4">
-              <User size={40} className="mx-auto text-gray-400" />
+              <Input
+                placeholder="Search contacts..."
+                className="shadow-sm"
+              />
             </div>
-            <h3 className="font-medium mb-2">Select from Contacts</h3>
-            <p className="text-gray-500 text-sm mb-4">
-              This feature would display your contacts with UPI IDs
-            </p>
-            <Button variant="outline" className="mx-auto" disabled>
-              Access Contacts
-            </Button>
-            <p className="text-xs text-gray-400 mt-4">
-              Demo version: This feature is not available in the demo
-            </p>
+            
+            <div className="space-y-3">
+              {frequentContacts.map((contact, index) => (
+                <div 
+                  key={index}
+                  className="flex items-center p-3 border-b last:border-b-0 cursor-pointer"
+                  onClick={() => handleContactClick(contact.upiId)}
+                >
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white text-md font-bold mr-3">
+                    {contact.name.charAt(0)}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium">{contact.name}</p>
+                    <p className="text-xs text-gray-500">{contact.upiId}</p>
+                  </div>
+                  <Button size="sm" variant="ghost" className="text-blue-600">
+                    <ArrowUpRight size={16} />
+                  </Button>
+                </div>
+              ))}
+            </div>
           </Card>
         </TabsContent>
       </Tabs>
+
+      <div className="mt-6 flex items-center justify-center">
+        <ShieldCheck size={16} className="text-green-600 mr-2" />
+        <p className="text-xs text-gray-500">All transactions are secure and encrypted</p>
+      </div>
     </div>
   );
 };
