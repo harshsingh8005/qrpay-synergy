@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '../contexts/AuthContext';
-import { Bank, CreditCard, QrCode, Repeat, Send, UserPlus } from 'lucide-react';
+import { Building, CreditCard, QrCode, Repeat, Send, UserPlus } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 
 const Dashboard = () => {
@@ -90,7 +89,7 @@ const Dashboard = () => {
             onClick={() => navigate('/link-bank')}
           >
             <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center mb-1">
-              <Bank size={24} className="text-orange-600" />
+              <Building size={24} className="text-orange-600" />
             </div>
             <span className="text-xs text-center">Add Bank</span>
           </div>
@@ -140,7 +139,7 @@ const Dashboard = () => {
               className="mx-auto"
               onClick={() => navigate('/link-bank')}
             >
-              <Bank size={16} className="mr-2" />
+              <Building size={16} className="mr-2" />
               Link Bank Account
             </Button>
           </Card>

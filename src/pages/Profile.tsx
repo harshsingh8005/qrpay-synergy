@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Copy, User, CreditCard, Settings, Lock, HelpCircle, LogOut, Smartphone } from 'lucide-react';
+import { ArrowLeft, Copy, User, CreditCard, Settings, Lock, HelpCircle, LogOut, Smartphone, CheckCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { copyToClipboard } from '../utils/qrUtils';
@@ -55,7 +54,7 @@ const Profile = () => {
             <div className="flex items-center mt-1">
               <p className="text-sm text-gray-600 mr-2">{user.upiId}</p>
               <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCopyUpiId}>
-                {copied ? <Check size={14} /> : <Copy size={14} />}
+                {copied ? <CheckCheck size={14} /> : <Copy size={14} />}
               </Button>
             </div>
           </div>
