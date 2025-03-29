@@ -5,16 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, CreditCard, Check, Building, Shield } from 'lucide-react';
+import { ArrowLeft, CreditCard, Check, Building, Shield, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const AddMoney = () => {
-  const { user } = useAuth();
+  const { user, checkBalance } = useAuth();
   const navigate = useNavigate();
   const [amount, setAmount] = useState('');
+  const [securityCode, setSecurityCode] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
   
   useEffect(() => {
     if (!user) {
@@ -26,7 +28,7 @@ const AddMoney = () => {
     return null;
   }
 
-  const quickAmounts = [100, 500, 1000, 2000];
+  const quickAmounts = [10, 25, 50, 100];
 
   const handleAddMoney = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +39,16 @@ const AddMoney = () => {
       return;
     }
     
+    if (!securityCode) {
+      toast.error('Please enter your security code');
+      return;
+    }
+
+    if (securityCode !== user.securityCode) {
+      toast.error('Invalid security code');
+      return;
+    }
+    
     setIsProcessing(true);
     
     // Simulate API call
@@ -44,7 +56,7 @@ const AddMoney = () => {
       // Update user balance would happen in real implementation
       setIsProcessing(false);
       setIsSuccess(true);
-      toast.success(`₹${numAmount} added successfully`);
+      toast.success(`$${numAmount} added successfully`);
       
       // Redirect after short delay
       setTimeout(() => {
@@ -55,6 +67,23 @@ const AddMoney = () => {
 
   const handleQuickAmountClick = (value: number) => {
     setAmount(value.toString());
+  };
+
+  const handleCheckBalance = async () => {
+    if (!securityCode) {
+      toast.error('Please enter your security code');
+      return;
+    }
+
+    setIsCheckingBalance(true);
+    try {
+      const balance = await checkBalance(securityCode);
+      toast.success(`Your current balance is $${balance.toFixed(2)}`);
+    } catch (error) {
+      // Error handled by auth context
+    } finally {
+      setIsCheckingBalance(false);
+    }
   };
 
   return (
@@ -72,7 +101,7 @@ const AddMoney = () => {
             <Check size={32} className="text-green-600" />
           </div>
           <h2 className="text-xl font-semibold mb-2">Money Added Successfully!</h2>
-          <p className="text-gray-600 mb-6">₹{amount} has been added to your wallet</p>
+          <p className="text-gray-600 mb-6">${amount} has been added to your wallet</p>
           <Button onClick={() => navigate('/')} className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600">
             Back to Home
           </Button>
@@ -83,7 +112,7 @@ const AddMoney = () => {
             <div className="space-y-2">
               <Label htmlFor="amount">Amount</Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                 <Input
                   id="amount"
                   type="number"
@@ -105,9 +134,39 @@ const AddMoney = () => {
                   className="w-full"
                   onClick={() => handleQuickAmountClick(value)}
                 >
-                  ₹{value}
+                  ${value}
                 </Button>
               ))}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="securityCode" className="flex items-center">
+                <Lock size={16} className="mr-2 text-gray-500" />
+                Security Code
+              </Label>
+              <Input
+                id="securityCode"
+                type="password"
+                placeholder="Enter your 4-digit code"
+                value={securityCode}
+                onChange={(e) => setSecurityCode(e.target.value)}
+                required
+                className="shadow-sm"
+                maxLength={4}
+              />
+              <div className="flex justify-between items-center">
+                <p className="text-xs text-gray-500">Required for verification</p>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleCheckBalance}
+                  disabled={isCheckingBalance}
+                  className="text-xs text-blue-600 hover:text-blue-800"
+                >
+                  {isCheckingBalance ? 'Checking...' : 'Check Balance'}
+                </Button>
+              </div>
             </div>
             
             <div className="pt-4">

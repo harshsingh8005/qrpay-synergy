@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, QrCode, Send, User, Clock, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, QrCode, Send, User, Clock, ArrowUpRight, ShieldCheck, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -16,6 +16,7 @@ const Payment = () => {
   const [upiId, setUpiId] = useState('');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
+  const [securityCode, setSecurityCode] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
@@ -29,10 +30,10 @@ const Payment = () => {
   }
 
   const frequentContacts = [
-    { name: "Sara", upiId: "sara@upibank" },
-    { name: "Mike", upiId: "mike@upibank" },
-    { name: "Jane", upiId: "jane@upibank" },
-    { name: "Alex", upiId: "alex@upibank" }
+    { name: "Sara", upiId: "sara@payapp" },
+    { name: "Mike", upiId: "mike@payapp" },
+    { name: "Jane", upiId: "jane@payapp" },
+    { name: "Alex", upiId: "alex@payapp" }
   ];
 
   const handleSendMoney = async (e: React.FormEvent) => {
@@ -54,10 +55,15 @@ const Payment = () => {
       return;
     }
     
+    if (!securityCode) {
+      toast.error('Please enter your security code');
+      return;
+    }
+    
     setIsProcessing(true);
     try {
-      await sendMoney(upiId, numAmount, description || 'Payment');
-      toast.success(`₹${numAmount} sent to ${upiId} successfully!`);
+      await sendMoney(upiId, numAmount, description || 'Payment', securityCode);
+      toast.success(`$${numAmount} sent to ${upiId} successfully!`);
       navigate('/');
     } catch (error) {
       // Error is handled by the auth context
@@ -121,7 +127,7 @@ const Payment = () => {
                 <Label htmlFor="upiId">UPI ID / Phone Number</Label>
                 <Input
                   id="upiId"
-                  placeholder="name@upi"
+                  placeholder="name@payapp"
                   value={upiId}
                   onChange={(e) => setUpiId(e.target.value)}
                   required
@@ -132,7 +138,7 @@ const Payment = () => {
               <div className="space-y-2">
                 <Label htmlFor="amount">Amount</Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                   <Input
                     id="amount"
                     type="number"
@@ -156,6 +162,24 @@ const Payment = () => {
                 />
               </div>
               
+              <div className="space-y-2">
+                <Label htmlFor="securityCode" className="flex items-center">
+                  <Lock size={16} className="mr-2 text-gray-500" />
+                  Security Code
+                </Label>
+                <Input
+                  id="securityCode"
+                  type="password"
+                  placeholder="Enter your 4-digit code"
+                  value={securityCode}
+                  onChange={(e) => setSecurityCode(e.target.value)}
+                  required
+                  className="shadow-sm"
+                  maxLength={4}
+                />
+                <p className="text-xs text-gray-500">Required for security verification</p>
+              </div>
+              
               <div className="pt-2">
                 <Button 
                   type="submit" 
@@ -167,7 +191,7 @@ const Payment = () => {
               </div>
               
               <div className="text-center text-xs text-gray-500 mt-4">
-                <p>Current Balance: ₹{user.balance.toFixed(2)}</p>
+                <p>Current Balance: ${user.balance.toFixed(2)}</p>
               </div>
             </form>
           </Card>

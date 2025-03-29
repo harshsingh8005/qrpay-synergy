@@ -11,7 +11,7 @@ interface TransactionItemProps {
 
 const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, userUpiId }) => {
   const isIncoming = transaction.to === userUpiId;
-  const formattedAmount = `₹${transaction.amount.toFixed(2)}`;
+  const formattedAmount = `$${transaction.amount.toFixed(2)}`;
   const formattedTime = formatDistanceToNow(new Date(transaction.timestamp), { addSuffix: true });
   
   return (

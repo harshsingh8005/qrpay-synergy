@@ -58,14 +58,17 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ showAmountInput = tru
           <div className="w-full space-y-4 mb-4">
             <div>
               <Label htmlFor="amount">Amount (Optional)</Label>
-              <Input
-                id="amount"
-                type="number"
-                placeholder="Enter amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="mt-1 shadow-sm"
-              />
+              <div className="relative mt-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <Input
+                  id="amount"
+                  type="number"
+                  placeholder="Enter amount"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="pl-8 shadow-sm"
+                />
+              </div>
             </div>
             
             <div>
@@ -91,8 +94,18 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ showAmountInput = tru
           />
         </div>
         
-        <div className="text-center text-sm text-gray-500">
-          <p>Scan this QR code to pay using any UPI app</p>
+        <div className="text-center space-y-2">
+          <p className="text-sm text-gray-700">Your Payment ID: <span className="font-medium">{user.upiId}</span></p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleCopyUpiId} 
+            className="flex items-center"
+          >
+            {copied ? <Check size={16} className="mr-1" /> : <Copy size={16} className="mr-1" />}
+            {copied ? 'Copied' : 'Copy ID'}
+          </Button>
+          <p className="text-xs text-gray-500 mt-2">Scan this QR code to receive payment via any UPI app</p>
         </div>
       </div>
     </Card>

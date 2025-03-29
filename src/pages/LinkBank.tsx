@@ -15,9 +15,17 @@ const LinkBank = () => {
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [confirmAccountNumber, setConfirmAccountNumber] = useState('');
-  const [ifsc, setIfsc] = useState('');
+  const [routingNumber, setRoutingNumber] = useState('');
   const [isDefault, setIsDefault] = useState(user?.linkedBanks.length === 0);
   const [formStep, setFormStep] = useState(1);
+
+  const usBanks = [
+    { name: "Chase Bank", routingPrefix: "021" },
+    { name: "Bank of America", routingPrefix: "026" },
+    { name: "Wells Fargo", routingPrefix: "121" },
+    { name: "Citibank", routingPrefix: "031" },
+    { name: "Capital One", routingPrefix: "056" }
+  ];
 
   if (!user) {
     navigate('/login');
@@ -32,11 +40,17 @@ const LinkBank = () => {
       return;
     }
 
+    // Validate routing number
+    if (routingNumber.length !== 9) {
+      toast.error('Routing number must be 9 digits');
+      return;
+    }
+
     try {
       await linkBank({
         name: bankName,
         accountNumber,
-        ifsc,
+        routingNumber,
         isDefault,
       });
       navigate('/');
@@ -46,11 +60,16 @@ const LinkBank = () => {
   };
 
   const goToNextStep = () => {
-    if (!bankName || !ifsc) {
+    if (!bankName || !routingNumber) {
       toast.error('Please fill all required fields');
       return;
     }
     setFormStep(2);
+  };
+
+  const handleBankSelect = (name: string, routingPrefix: string) => {
+    setBankName(name);
+    setRoutingNumber(routingPrefix + "000000"); // Set a default routing number prefix
   };
 
   return (
@@ -66,27 +85,31 @@ const LinkBank = () => {
         {formStep === 1 ? (
           <div className="space-y-4">
             <h2 className="text-lg font-medium">Step 1: Select Bank</h2>
-            <div className="space-y-2">
-              <Label htmlFor="bankName">Bank Name</Label>
-              <Input
-                id="bankName"
-                placeholder="Enter bank name"
-                value={bankName}
-                onChange={(e) => setBankName(e.target.value)}
-                required
-              />
+            
+            <div className="space-y-3 my-4">
+              {usBanks.map((bank, index) => (
+                <div 
+                  key={index}
+                  className={`p-3 border rounded-md cursor-pointer transition-colors ${
+                    bankName === bank.name ? 'bg-blue-50 border-blue-500' : 'hover:bg-gray-50'
+                  }`}
+                  onClick={() => handleBankSelect(bank.name, bank.routingPrefix)}
+                >
+                  <p className="font-medium">{bank.name}</p>
+                </div>
+              ))}
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="ifsc">IFSC Code</Label>
+              <Label htmlFor="routingNumber">Routing Number</Label>
               <Input
-                id="ifsc"
-                placeholder="SBIN0000123"
-                value={ifsc}
-                onChange={(e) => setIfsc(e.target.value.toUpperCase())}
+                id="routingNumber"
+                placeholder="Enter 9-digit routing number"
+                value={routingNumber}
+                onChange={(e) => setRoutingNumber(e.target.value.replace(/\D/g, '').substring(0, 9))}
                 required
               />
-              <p className="text-xs text-gray-500">Enter the 11-digit IFSC code of your bank branch</p>
+              <p className="text-xs text-gray-500">Enter the 9-digit routing number for your bank</p>
             </div>
             
             <div className="pt-4">
@@ -104,7 +127,7 @@ const LinkBank = () => {
             
             <div className="border p-3 rounded-md bg-gray-50 mb-4">
               <p className="text-sm font-medium">{bankName}</p>
-              <p className="text-xs text-gray-500">IFSC: {ifsc}</p>
+              <p className="text-xs text-gray-500">Routing Number: {routingNumber}</p>
             </div>
             
             <div className="space-y-2">
@@ -113,7 +136,7 @@ const LinkBank = () => {
                 id="accountNumber"
                 placeholder="Enter account number"
                 value={accountNumber}
-                onChange={(e) => setAccountNumber(e.target.value)}
+                onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ''))}
                 required
               />
             </div>
@@ -124,7 +147,7 @@ const LinkBank = () => {
                 id="confirmAccountNumber"
                 placeholder="Re-enter account number"
                 value={confirmAccountNumber}
-                onChange={(e) => setConfirmAccountNumber(e.target.value)}
+                onChange={(e) => setConfirmAccountNumber(e.target.value.replace(/\D/g, ''))}
                 required
               />
             </div>
@@ -135,7 +158,7 @@ const LinkBank = () => {
                 id="defaultAccount"
                 checked={isDefault}
                 onChange={(e) => setIsDefault(e.target.checked)}
-                className="rounded border-gray-300 text-upi-blue focus:ring-upi-blue"
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-600"
               />
               <Label htmlFor="defaultAccount" className="text-sm">
                 Set as default account for receiving payments
@@ -173,7 +196,7 @@ const LinkBank = () => {
       <div className="mt-6 space-y-4">
         <div className="flex items-start">
           <CheckCircle2 size={20} className="text-green-600 mt-0.5 mr-3 flex-shrink-0" />
-          <p className="text-sm">Securely link your bank account to receive payments directly</p>
+          <p className="text-sm">Securely link your US bank account to receive payments directly</p>
         </div>
         
         <div className="flex items-start">

@@ -9,6 +9,7 @@ export interface User {
   phone: string;
   upiId: string;
   balance: number;
+  securityCode: string;
   linkedBanks: Bank[];
 }
 
@@ -16,7 +17,7 @@ export interface Bank {
   id: string;
   name: string;
   accountNumber: string;
-  ifsc: string;
+  routingNumber: string;
   isDefault: boolean;
 }
 
@@ -40,8 +41,9 @@ interface AuthContextType {
   logout: () => void;
   register: (name: string, email: string, phone: string, password: string) => Promise<void>;
   linkBank: (bank: Omit<Bank, 'id'>) => Promise<void>;
-  sendMoney: (to: string, amount: number, description: string) => Promise<void>;
+  sendMoney: (to: string, amount: number, description: string, securityCode: string) => Promise<void>;
   requestMoney: (from: string, amount: number, description: string) => Promise<void>;
+  checkBalance: (securityCode: string) => Promise<number>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -53,14 +55,15 @@ const mockUsers: User[] = [
     name: 'John Doe',
     email: 'john@example.com',
     phone: '9876543210',
-    upiId: 'john@upibank',
-    balance: 5000,
+    upiId: 'john@payapp',
+    balance: 500,
+    securityCode: '1234',
     linkedBanks: [
       {
         id: '1',
-        name: 'State Bank',
+        name: 'Chase Bank',
         accountNumber: 'XXXX1234',
-        ifsc: 'SBIN0001234',
+        routingNumber: '021000021',
         isDefault: true,
       }
     ]
@@ -70,14 +73,15 @@ const mockUsers: User[] = [
     name: 'Jane Smith',
     email: 'jane@example.com',
     phone: '9876543211',
-    upiId: 'jane@upibank',
-    balance: 3500,
+    upiId: 'jane@payapp',
+    balance: 350,
+    securityCode: '5678',
     linkedBanks: [
       {
         id: '2',
-        name: 'HDFC Bank',
+        name: 'Bank of America',
         accountNumber: 'XXXX5678',
-        ifsc: 'HDFC0001234',
+        routingNumber: '026009593',
         isDefault: true,
       }
     ]
@@ -87,33 +91,33 @@ const mockUsers: User[] = [
 const mockTransactions: Transaction[] = [
   {
     id: '1',
-    amount: 100,
+    amount: 50,
     type: 'credit',
-    from: 'jane@upibank',
-    to: 'john@upibank',
+    from: 'jane@payapp',
+    to: 'john@payapp',
     timestamp: new Date(2023, 6, 15, 12, 30),
     status: 'completed',
     description: 'Lunch payment'
   },
   {
     id: '2',
-    amount: 500,
+    amount: 25,
     type: 'debit',
-    from: 'john@upibank',
-    to: 'jane@upibank',
+    from: 'john@payapp',
+    to: 'jane@payapp',
     timestamp: new Date(2023, 6, 14, 15, 45),
     status: 'completed',
-    description: 'Rent'
+    description: 'Coffee'
   },
   {
     id: '3',
-    amount: 50,
+    amount: 10,
     type: 'credit',
-    from: 'jane@upibank',
-    to: 'john@upibank',
+    from: 'jane@payapp',
+    to: 'john@payapp',
     timestamp: new Date(2023, 6, 13, 10, 20),
     status: 'completed',
-    description: 'Coffee'
+    description: 'Split bill'
   }
 ];
 
@@ -148,13 +152,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Find user
+      // Find user - Now we validate both email and password
       const foundUser = mockUsers.find(u => u.email === email);
       if (!foundUser) {
         throw new Error('Invalid email or password');
       }
       
-      // In a real app, we would verify the password here
+      // In a real app, we would hash and verify the password
+      // For demo, we're just checking if a password was provided
+      if (!password) {
+        throw new Error('Password is required');
+      }
       
       setUser(foundUser);
       localStorage.setItem('upi_user', JSON.stringify(foundUser));
@@ -170,6 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const errorMessage = e instanceof Error ? e.message : 'Failed to login';
       setError(errorMessage);
       toast.error(errorMessage);
+      throw e; // Rethrow to allow handling in the component
     } finally {
       setIsLoading(false);
     }
@@ -194,14 +203,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Email already in use');
       }
       
-      // Create new user
+      // Check if UPI ID is already taken
+      const upiId = `${name.toLowerCase().replace(/\s/g, '')}@payapp`;
+      if (mockUsers.some(u => u.upiId === upiId)) {
+        throw new Error('Username already taken. Please try a different name.');
+      }
+      
+      // Generate a random security code
+      const securityCode = Math.floor(1000 + Math.random() * 9000).toString();
+      
+      // Create new user with unique ID
       const newUser: User = {
-        id: String(mockUsers.length + 1),
+        id: `user_${Date.now()}${Math.floor(Math.random() * 1000)}`, // Ensure unique ID
         name,
         email,
         phone,
-        upiId: `${name.toLowerCase().replace(/\s/g, '')}@upibank`,
-        balance: 1000, // Give new users some starting balance
+        upiId,
+        balance: 100, // Give new users some starting balance
+        securityCode,
         linkedBanks: []
       };
       
@@ -212,10 +231,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('upi_user', JSON.stringify(newUser));
       
       toast.success('Registration successful');
+      toast.info(`Your security code is: ${securityCode}. Please save this!`);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to register';
       setError(errorMessage);
       toast.error(errorMessage);
+      throw e; // Rethrow to allow handling in the component
     } finally {
       setIsLoading(false);
     }
@@ -258,10 +279,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const sendMoney = async (to: string, amount: number, description: string) => {
+  const checkBalance = async (securityCode: string): Promise<number> => {
+    if (!user) {
+      toast.error('You must be logged in to check balance');
+      throw new Error('Not logged in');
+    }
+
+    if (user.securityCode !== securityCode) {
+      toast.error('Invalid security code');
+      throw new Error('Invalid security code');
+    }
+
+    return user.balance;
+  };
+
+  const sendMoney = async (to: string, amount: number, description: string, securityCode: string) => {
     if (!user) {
       toast.error('You must be logged in to send money');
       return;
+    }
+
+    if (user.securityCode !== securityCode) {
+      toast.error('Invalid security code');
+      throw new Error('Invalid security code');
     }
 
     if (user.balance < amount) {
@@ -294,7 +334,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       localStorage.setItem('upi_user', JSON.stringify(updatedUser));
       
-      toast.success(`₹${amount} sent successfully`);
+      toast.success(`$${amount} sent successfully`);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to send money';
       setError(errorMessage);
@@ -337,7 +377,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       localStorage.setItem('upi_user', JSON.stringify(updatedUser));
       
-      toast.success(`₹${amount} requested successfully`);
+      toast.success(`$${amount} requested successfully`);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'Failed to request money';
       setError(errorMessage);
@@ -357,7 +397,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     register,
     linkBank,
     sendMoney,
-    requestMoney
+    requestMoney,
+    checkBalance
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

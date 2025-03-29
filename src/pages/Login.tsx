@@ -6,28 +6,44 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
+import { toast } from 'sonner';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email.trim()) {
+      toast.error('Please enter your email');
+      return;
+    }
+    
+    if (!password.trim()) {
+      toast.error('Please enter your password');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
     try {
       await login(email, password);
       navigate('/');
     } catch (error) {
       // Error is handled by the auth context
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col justify-center p-6">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold upi-gradient bg-clip-text text-transparent">UPI Synergy</h1>
-        <p className="text-gray-600 mt-2">Fast and secure payments</p>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">PaySync</h1>
+        <p className="text-gray-600 mt-2">Fast and secure payments in USD</p>
       </div>
 
       <Card className="max-w-md w-full mx-auto p-6 shadow-lg">
@@ -60,17 +76,17 @@ const Login = () => {
           
           <Button 
             type="submit" 
-            className="w-full upi-gradient" 
-            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 text-white" 
+            disabled={isLoading || isSubmitting}
           >
-            {isLoading ? 'Logging in...' : 'Login'}
+            {isLoading || isSubmitting ? 'Logging in...' : 'Login'}
           </Button>
         </form>
         
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-600">
             Don't have an account?{' '}
-            <Link to="/register" className="text-upi-blue font-medium">
+            <Link to="/register" className="text-blue-600 font-medium">
               Register
             </Link>
           </p>
@@ -78,7 +94,7 @@ const Login = () => {
         
         <div className="mt-4 text-center text-xs text-gray-500">
           <p>Demo credentials:</p>
-          <p>Email: john@example.com (No password needed)</p>
+          <p>Email: john@example.com / Password: any text</p>
         </div>
       </Card>
     </div>
