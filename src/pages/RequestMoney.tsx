@@ -91,10 +91,10 @@ const RequestMoney = () => {
           <Card className="p-6 shadow-sm border-none">
             <form onSubmit={handleRequestMoney} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="upiId">Request From (UPI ID / Phone Number)</Label>
+                <Label htmlFor="upiId">Request From (UID / Phone Number)</Label>
                 <Input
                   id="upiId"
-                  placeholder="name@upi"
+                  placeholder="name@payapp"
                   value={upiId}
                   onChange={(e) => setUpiId(e.target.value)}
                   required
@@ -105,7 +105,7 @@ const RequestMoney = () => {
               <div className="space-y-2">
                 <Label htmlFor="amount">Amount</Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                   <Input
                     id="amount"
                     type="number"

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -24,8 +23,8 @@ const Dashboard = () => {
 
   const recentTransactions = transactions.slice(0, 5);
   
-  const maskedBalance = `₹${'•'.repeat(5)}`;
-  const actualBalance = `₹${user.balance.toFixed(2)}`;
+  const maskedBalance = `${'•'.repeat(5)}`;
+  const actualBalance = `$${user.balance.toFixed(2)}`;
 
   return (
     <div className="pb-20 bg-gray-50">

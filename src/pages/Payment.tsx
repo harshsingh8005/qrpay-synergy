@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Card } from '@/components/ui/card';
@@ -108,7 +107,7 @@ const Payment = () => {
         <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="upi" className="flex items-center">
             <Send size={16} className="mr-2" />
-            UPI ID
+            UID
           </TabsTrigger>
           <TabsTrigger value="qr" className="flex items-center">
             <QrCode size={16} className="mr-2" />
@@ -124,7 +123,7 @@ const Payment = () => {
           <Card className="p-6 shadow-sm border-none">
             <form onSubmit={handleSendMoney} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="upiId">UPI ID / Phone Number</Label>
+                <Label htmlFor="upiId">UID / Phone Number</Label>
                 <Input
                   id="upiId"
                   placeholder="name@payapp"

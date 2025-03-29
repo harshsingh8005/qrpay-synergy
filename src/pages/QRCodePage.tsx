@@ -40,10 +40,10 @@ const QRCodePage = () => {
       const success = await copyToClipboard(user.upiId);
       if (success) {
         setCopied(true);
-        toast.success('UPI ID copied to clipboard');
+        toast.success('UID copied to clipboard');
         setTimeout(() => setCopied(false), 3000);
       } else {
-        toast.error('Failed to copy UPI ID');
+        toast.error('Failed to copy UID');
       }
     }
   };
@@ -86,7 +86,7 @@ const QRCodePage = () => {
         <h2 className="text-lg font-medium mb-4">How to use</h2>
         <ol className="list-decimal pl-5 space-y-2 text-gray-600">
           <li>Share this QR code with people who need to pay you</li>
-          <li>They can scan it using any UPI app</li>
+          <li>They can scan it using any payment app</li>
           <li>Money will be transferred directly to your linked bank account</li>
           <li>Add an amount and description for a more specific payment request</li>
         </ol>

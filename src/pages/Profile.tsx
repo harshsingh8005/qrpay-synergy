@@ -28,10 +28,10 @@ const Profile = () => {
     const success = await copyToClipboard(user.upiId);
     if (success) {
       setCopied(true);
-      toast.success('UPI ID copied to clipboard');
+      toast.success('UID copied to clipboard');
       setTimeout(() => setCopied(false), 3000);
     } else {
-      toast.error('Failed to copy UPI ID');
+      toast.error('Failed to copy UID');
     }
   };
 
