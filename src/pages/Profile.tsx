@@ -12,6 +12,7 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/component
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 
 const Profile = () => {
   const { user, logout } = useAuth();
@@ -74,6 +75,14 @@ const Profile = () => {
     setCurrentPwd('');
     setNewPwd('');
     setConfirmPwd('');
+  };
+
+  // Fix for type compatibility with CheckedState
+  const handleCheckboxChange = (setter: React.Dispatch<React.SetStateAction<boolean>>) => {
+    return (checked: boolean | 'indeterminate') => {
+      if (checked === 'indeterminate') return;
+      setter(checked);
+    };
   };
 
   // Customizable FAQ entries
@@ -217,13 +226,32 @@ const Profile = () => {
             <CollapsibleContent>
               <Separator className="my-4" />
               <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="notifications" checked={notifications} onCheckedChange={setNotifications} />
-                  <Label htmlFor="notifications">Enable Notifications</Label>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="notifications">Enable Notifications</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Get alerts for payments and security
+                    </p>
+                  </div>
+                  <Switch
+                    id="notifications"
+                    checked={notifications}
+                    onCheckedChange={setNotifications}
+                  />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="darkmode" checked={darkMode} onCheckedChange={setDarkMode} />
-                  <Label htmlFor="darkmode">Enable Dark Mode</Label>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="darkmode">Enable Dark Mode</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Use dark theme for the app
+                    </p>
+                  </div>
+                  <Switch
+                    id="darkmode"
+                    checked={darkMode}
+                    onCheckedChange={setDarkMode}
+                  />
                 </div>
                 <Button className="mt-4" onClick={handlePreferencesSave}>Save Preferences</Button>
               </div>
@@ -277,9 +305,18 @@ const Profile = () => {
                 <Button variant="outline" onClick={handleChangePassword}>Change Password</Button>
               </div>
               {/* Two-way authentication */}
-              <div className="flex items-center mb-3">
-                <Checkbox id="2fa" checked={twoFA} onCheckedChange={setTwoFA} />
-                <Label htmlFor="2fa" className="ml-2">Enable Two-Way Authentication</Label>
+              <div className="flex items-center justify-between mb-3">
+                <div className="space-y-0.5">
+                  <Label htmlFor="2fa">Two-Way Authentication</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Additional security for your account
+                  </p>
+                </div>
+                <Switch
+                  id="2fa"
+                  checked={twoFA}
+                  onCheckedChange={setTwoFA}
+                />
               </div>
               <div className="mb-2">
                 <Label className="block mb-1">Other Security Settings</Label>
@@ -345,4 +382,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
